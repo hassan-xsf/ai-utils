@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { History } from "lucide-react";
+import { History, Lightbulb } from "lucide-react";
 import { requireUser } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import type { TmPreset, TmRoutine } from "@/lib/types";
@@ -27,7 +27,7 @@ export default async function TokenMaxxerPage() {
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight">Token Maxxer</h1>
-          <p className="text-sm text-muted">Utilize 100% of your Claude. Schedule daily routines per endpoint preset.</p>
+          <p className="text-sm text-muted">Schedule cron routines that ping any endpoint on your chosen times and days.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/token-maxxer/history" className="btn">
@@ -42,6 +42,14 @@ export default async function TokenMaxxerPage() {
         <Stat label="Routines" value={String(routines.length)} />
         <Stat label="Total runs" value={String(runCount ?? 0)} />
       </section>
+
+      <div className="flex items-start gap-2 text-xs text-muted border border-border rounded-lg px-4 py-3">
+        <Lightbulb size={13} className="text-accent shrink-0 mt-0.5" />
+        <span>
+          <span className="text-foreground font-medium">Tip:</span> Combine this with{" "}
+          <span className="text-foreground">Claude Routines</span> — create a preset using the Claude Routines template and schedule it here to automatically keep your Claude Code sessions active and utilize your full subscription.
+        </span>
+      </div>
 
       <PresetsSection presets={presets} />
       <RoutinesSection routines={routines} presets={presets} />

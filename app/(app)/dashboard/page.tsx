@@ -24,7 +24,7 @@ export default async function DashboardPage() {
             href="/token-maxxer"
             title="Token Maxxer"
             subtitle="Utilize 100% of your Claude"
-            description="Schedule up to 5 daily cron runs that ping your endpoint to maximize subscription utilization."
+            description="Schedule cron routines that ping any endpoint on your chosen times and days. Works great with Claude Routines to keep your sessions active."
             icon={<Zap size={18} />}
             status="ready"
           />
