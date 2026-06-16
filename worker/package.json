@@ -1,0 +1,18 @@
+{
+  "name": "token-maxxer-worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.95.0",
+    "typescript": "^5.6.0",
+    "@cloudflare/workers-types": "^4.20241112.0"
+  }
+}

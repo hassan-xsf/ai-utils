@@ -1,0 +1,31 @@
+name = "token-maxxer-worker"
+main = "src/index.ts"
+compatibility_date = "2025-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Cron: every 30 minutes
+[triggers]
+crons = ["*/30 * * * *"]
+
+# Set secrets via:
+#   wrangler secret put SUPABASE_URL
+#   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#   wrangler secret put TOKEN_ENCRYPTION_KEY
+#   wrangler secret put WORKER_SHARED_SECRET
+[vars]
+# Non-secret overrides go here.
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
