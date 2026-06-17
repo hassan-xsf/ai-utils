@@ -656,8 +656,8 @@ function PdfDropZone({
           </div>
           <ul className="space-y-1 text-xs" style={{ color: "var(--fg-dim)" }}>
             <StageItem label="Load PDF" active={stage === "loading"} done={stage !== "loading"} />
-            <StageItem label="Extract text" active={stage === "extracting"} done={stage === "ai" || stage === "done"} />
-            <StageItem label="Parse with AI" active={stage === "ai"} done={stage === "done"} />
+            <StageItem label="Extract text" active={stage === "extracting"} done={stage === "ai"} />
+            <StageItem label="Parse with AI" active={stage === "ai"} done={false} />
           </ul>
         </div>
       )}
