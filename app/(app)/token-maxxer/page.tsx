@@ -26,7 +26,7 @@ export default async function TokenMaxxerPage() {
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Token Maxxer</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Auto Trigger</h1>
           <p className="text-sm text-muted">Schedule cron routines that ping any endpoint on your chosen times and days.</p>
         </div>
         <div className="flex items-center gap-2">

@@ -77,14 +77,6 @@ export function SignUpForm() {
       <button type="submit" className="btn btn-primary w-full justify-center" disabled={pending}>
         {pending ? "Provisioning…" : "Create account"}
       </button>
-      <div className="flex items-center gap-3">
-        <div className="divider flex-1" />
-        <span className="mono text-[10px] text-muted tracking-widest">OR</span>
-        <div className="divider flex-1" />
-      </div>
-      <button type="button" onClick={onGoogle} className="btn w-full justify-center">
-        Continue with Google
-      </button>
     </form>
   );
 }

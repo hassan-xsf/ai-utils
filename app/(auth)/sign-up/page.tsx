@@ -7,9 +7,8 @@ export default function SignUpPage() {
   return (
     <div className="panel panel-strong p-8 space-y-6">
       <div className="space-y-1">
-        <div className="mono label">// AUTH.SIGN_UP</div>
         <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
-        <p className="text-sm text-muted">Join AI Utils. Start with Token Maxxer.</p>
+        <p className="text-sm text-muted">Get started with AI Utils.</p>
       </div>
       <SignUpForm />
       <div className="text-xs text-muted mono text-center">
