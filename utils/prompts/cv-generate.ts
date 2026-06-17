@@ -13,19 +13,35 @@ const SCHEMA = `{
 }`;
 
 export function buildCvGeneratePrompt(context: CvContext, templateName: string): string {
-  return `You are a professional CV writer. Build a complete, polished CV from the user information below.
+  return `You are a professional CV writer. Build a focused, polished CV from the user information below.
 
 Return ONLY a valid JSON object — no markdown fences, no explanation, no trailing text.
 
 JSON schema:
 ${SCHEMA}
 
-Rules:
-- Use only information present in the user context; never fabricate
-- Write concise, professional bullet points with strong action verbs and metrics
+EXTRACTION RULES:
+- READ the user context carefully and EXTRACT every real fact present — name, email, phone, location, links, etc. The bio or other fields often mention these in prose. PULL THEM OUT.
+- The "personal.name" field MUST be filled with the user's actual name if it appears anywhere in the context (bio, intro line, signature, etc.).
+- Email, phone, links: extract any that appear in the context, even in free-form prose.
+
+DO NOT FABRICATE:
+- NEVER invent values you cannot find in the context. Do not insert placeholders like "Your Name", "your.email@example.com", "Your Phone Number", "Your GitHub Profile", "John Doe", "Example University", "555-123-4567", etc.
+- If a piece of information is genuinely absent from the context, set that field to an empty string "" — never fill it with a placeholder or guess.
+- Distinguish between EXTRACTING (good — pull real facts from prose) and FABRICATING (bad — making up values).
+
+CURATION (be selective — quality over quantity):
+- Projects: include AT MOST 3 projects, choosing the most impressive and relevant. Skip the rest.
+- Experience: include only meaningful roles (skip trivial or very brief ones if there are stronger alternatives). Maximum 4-5 entries.
+- Bullets per role/project: 2-4 punchy bullets each. Drop weak bullets — concise beats comprehensive.
+- Skills: group into 3-5 logical categories (e.g., Languages, Frameworks, Tools). Pick the most relevant skills for a professional CV — don't list everything.
+- Certifications/Awards: include only notable ones.
+
+WRITING STYLE:
+- Bullets start with strong action verbs ("Built", "Led", "Reduced", "Designed")
+- Include metrics when present in the user context (numbers, percentages, scale)
 - Match the style and focus of the "${templateName}" template
 - Dates: "Mon YYYY" or "YYYY" format; use "Present" for current roles
-- If a field has no data, omit optional fields or leave arrays empty
 
 User context:
 Bio: ${context.bio || "(not provided)"}

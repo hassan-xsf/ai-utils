@@ -185,11 +185,53 @@ export async function generateCvFromContext(
 
   try {
     const raw = await askAi(prompt);
-    const resumeData = parseAiJson(raw);
+    const resumeData = stripPlaceholders(parseAiJson(raw));
     return { ok: true, data: { resumeData } };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "AI request failed" };
   }
+}
+
+// Removes common LLM placeholder strings from the resume — defense-in-depth
+// against the model fabricating contact details when the user didn't provide them.
+function stripPlaceholders(data: ResumeData): ResumeData {
+  const placeholderPatterns = [
+    /^your\s+(name|phone|email|address|location|website|linkedin|github|profile)/i,
+    /^your\s+\w+\s+(number|profile|url|address)$/i,
+    /your\.email@example\.com/i,
+    /example\.com/i,
+    /^john\s+doe$/i,
+    /^jane\s+doe$/i,
+    /^\+?1?\s*\(?555\)?[\s.-]?\d{3}[\s.-]?\d{4}$/i,
+    /^123[\s.-]?456[\s.-]?7890$/i,
+    /^\[.+\]$/, // [insert email here]
+    /^<.+>$/, // <your name>
+    /^lorem\s+ipsum/i,
+  ];
+
+  const isPlaceholder = (v: string | undefined): boolean => {
+    if (!v) return false;
+    const trimmed = v.trim();
+    if (!trimmed) return false;
+    return placeholderPatterns.some((re) => re.test(trimmed));
+  };
+
+  const clean = (v: string | undefined): string => (isPlaceholder(v) ? "" : v ?? "");
+
+  return {
+    ...data,
+    personal: {
+      ...data.personal,
+      name: clean(data.personal?.name),
+      email: clean(data.personal?.email),
+      phone: clean(data.personal?.phone),
+      location: clean(data.personal?.location),
+      title: clean(data.personal?.title),
+      website: clean(data.personal?.website),
+      linkedin: clean(data.personal?.linkedin),
+      github: clean(data.personal?.github),
+    },
+  };
 }
 
 export async function generateCvFromPdf(
@@ -215,7 +257,7 @@ export async function generateCvFromPdf(
 
   try {
     const raw = await askAi(prompt);
-    const resumeData = parseAiJson(raw);
+    const resumeData = stripPlaceholders(parseAiJson(raw));
     return { ok: true, data: { resumeData } };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "AI request failed" };
@@ -327,7 +369,7 @@ export async function optimizeForAts(
 
   try {
     const raw = await askAi(prompt);
-    const resumeData = parseAiJson(raw);
+    const resumeData = stripPlaceholders(parseAiJson(raw));
     return { ok: true, data: { resumeData } };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "AI request failed" };
