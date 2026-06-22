@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState, useEffect, startTransition } from "react";
+import { useState, useActionState, useEffect, useRef, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Download, LayoutTemplate, ChevronDown, ChevronUp, FileUp, Loader2, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import {
@@ -38,6 +38,12 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
   const [resumeData, setResumeData] = useState<ResumeData>(safeData);
   const [name, setName] = useState(doc.name);
   const [templateId, setTemplateId] = useState(doc.template_id);
+  const [cvDirty, setCvDirty] = useState(false);
+  const [profileDirty, setProfileDirty] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const [profileSavedFlash, setProfileSavedFlash] = useState(false);
+  const cvMounted = useRef(false);
+  const profileMounted = useRef(false);
   const [activeTab, setActiveTab] = useState<Tab>(initialMode ? "ai" : "form");
   const [jsonText, setJsonText] = useState(() => JSON.stringify(safeData, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -136,26 +142,64 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
     }
   }, [ctxFillState]);
 
-  // Redirect after first save
+  // CV dirty tracking — skip first render
+  useEffect(() => {
+    if (!cvMounted.current) { cvMounted.current = true; return; }
+    setCvDirty(true);
+  }, [resumeData, name, templateId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Profile dirty tracking — skip first render
+  useEffect(() => {
+    if (!profileMounted.current) { profileMounted.current = true; return; }
+    setProfileDirty(true);
+  }, [ctxFields, personalFields]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Redirect after first save + clear dirty + flash
   useEffect(() => {
     if (saveState.ok && saveState.data) {
       const newId = (saveState.data as { id: string }).id;
       if (!doc.id && newId) router.push(`/cv/${newId}`);
     }
+    if (saveState.ok) {
+      setCvDirty(false);
+      setSavedFlash(true);
+    }
   }, [saveState, doc.id, router]);
+
+  // Clear savedFlash after 2 s
+  useEffect(() => {
+    if (!savedFlash) return;
+    const t = setTimeout(() => setSavedFlash(false), 2000);
+    return () => clearTimeout(t);
+  }, [savedFlash]);
+
+  // Profile save — clear dirty + flash
+  useEffect(() => {
+    if (ctxState.ok) {
+      setProfileDirty(false);
+      setProfileSavedFlash(true);
+    }
+  }, [ctxState]);
+
+  // Clear profileSavedFlash after 2 s
+  useEffect(() => {
+    if (!profileSavedFlash) return;
+    const t = setTimeout(() => setProfileSavedFlash(false), 2000);
+    return () => clearTimeout(t);
+  }, [profileSavedFlash]);
 
   // Apply AI-generated resume data
   useEffect(() => {
     if (genState.ok && genState.data) {
       const rd = (genState.data as { resumeData: ResumeData }).resumeData;
-      if (rd) setResumeData(rd);
+      if (rd) { setResumeData(rd); setCvDirty(true); }
     }
   }, [genState]);
 
   useEffect(() => {
     if (atsState.ok && atsState.data) {
       const rd = (atsState.data as { resumeData: ResumeData }).resumeData;
-      if (rd) setResumeData(rd);
+      if (rd) { setResumeData(rd); setCvDirty(true); }
     }
   }, [atsState]);
 
@@ -164,6 +208,7 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
       const rd = (pdfGenState.data as { resumeData: ResumeData }).resumeData;
       if (rd) {
         setResumeData(rd);
+        setCvDirty(true);
         setPdfStage("done");
         setActiveTab("form");
       }
@@ -278,17 +323,23 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
             <input type="hidden" name="template_id" value={templateId} />
             <input type="hidden" name="resume_data" value={JSON.stringify(resumeData)} />
             <button type="submit" className="btn btn-primary shrink-0" disabled={savePending}>
-              <Save size={13} />
-              {savePending ? "Saving…" : "Save"}
+              {savePending ? (
+                <Loader2 size={13} className="animate-spin" />
+              ) : savedFlash ? (
+                <CheckCircle2 size={13} />
+              ) : (
+                <Save size={13} />
+              )}
+              {savePending ? "Saving…" : savedFlash ? "Saved!" : "Save"}
+              {cvDirty && !savePending && !savedFlash && (
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--warning, #f59e0b)", display: "inline-block", marginLeft: 2 }} />
+              )}
             </button>
           </form>
         </div>
 
         {saveState.error && (
           <div className="px-3 py-1 text-xs shrink-0" style={{ color: "var(--danger)" }}>{saveState.error}</div>
-        )}
-        {saveState.ok && saveState !== INIT_STATE && !saveState.error && (
-          <div className="px-3 py-1 text-xs shrink-0" style={{ color: "var(--success)" }}>Saved.</div>
         )}
 
         {/* Tabs */}
@@ -305,7 +356,12 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
                 cursor: "pointer",
               }}
             >
-              {tab === "form" ? "Editor" : tab === "json" ? "JSON" : tab === "ai" ? "AI Tools" : "Profile"}
+              {tab === "form" ? "Editor" : tab === "json" ? "JSON" : tab === "ai" ? "AI Tools" : (
+                <span className="flex items-center gap-1">
+                  Profile
+                  {profileDirty && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--warning, #f59e0b)", display: "inline-block" }} />}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -413,8 +469,9 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
           )}
 
           {activeTab === "context" && (
-            <div className="p-4 overflow-y-auto h-full">
-              <div className="panel p-3 mb-4 flex items-start gap-3">
+            <div className="flex flex-col h-full min-h-0">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="panel p-3 flex items-start gap-3">
                 <Sparkles size={14} style={{ color: "var(--accent)" }} className="mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium">Auto-fill from this CV</p>
@@ -436,10 +493,11 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
                 </button>
               </div>
               {ctxFillState.error && (
-                <p className="text-xs mb-3" style={{ color: "var(--danger)" }}>{ctxFillState.error}</p>
+                <p className="text-xs" style={{ color: "var(--danger)" }}>{ctxFillState.error}</p>
               )}
 
               <form
+                id="profile-form"
                 className="space-y-4"
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -479,16 +537,25 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
                     />
                   </div>
                 ))}
-                <button type="submit" className="btn btn-primary" disabled={ctxPending}>
-                  {ctxPending ? "Saving…" : "Save Profile"}
-                </button>
-                {ctxState.error && <p className="text-xs" style={{ color: "var(--danger)" }}>{ctxState.error}</p>}
-                {ctxState.ok && ctxState !== INIT_STATE && !ctxState.error && (
-                  <p className="text-xs" style={{ color: "var(--success)" }}>Profile saved.</p>
-                )}
               </form>
+            </div>{/* end scrollable */}
+            <div className="shrink-0 px-4 py-3 border-t flex items-center gap-3" style={{ borderColor: "var(--border)" }}>
+              <button
+                type="submit"
+                form="profile-form"
+                className="btn btn-primary"
+                disabled={ctxPending}
+              >
+                {ctxPending ? <Loader2 size={13} className="animate-spin" /> : profileSavedFlash ? <CheckCircle2 size={13} /> : <Save size={13} />}
+                {ctxPending ? "Saving…" : profileSavedFlash ? "Saved!" : "Save Profile"}
+                {profileDirty && !ctxPending && !profileSavedFlash && (
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--warning, #f59e0b)", display: "inline-block", marginLeft: 2 }} />
+                )}
+              </button>
+              {ctxState.error && <p className="text-xs" style={{ color: "var(--danger)" }}>{ctxState.error}</p>}
             </div>
-          )}
+          </div>
+          )}{/* end context */}
         </div>
       </div>
 
