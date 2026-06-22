@@ -95,7 +95,7 @@ function ContactLine({ p }: { p: ResumeData["personal"] }) {
 }
 
 export function JakesTemplate({ data }: { data: ResumeData }) {
-  const { personal: p, summary, experience, education, skills, projects, certifications, awards } = data;
+  const { personal: p, experience, education, skills, projects, certifications, awards } = data;
 
   return (
     <div style={s.page}>
@@ -103,16 +103,6 @@ export function JakesTemplate({ data }: { data: ResumeData }) {
       {/* ---- HEADING ---- */}
       <div style={s.name}>{p.name}</div>
       <ContactLine p={p} />
-
-      {/* ---- SUMMARY ---- */}
-      {summary && (
-        <>
-          <div style={s.sectionHeader}>Summary</div>
-          <p style={{ margin: "2px 0 0", padding: "0 0 0 0.15in", fontSize: "10pt", lineHeight: 1.35 }}>
-            {summary}
-          </p>
-        </>
-      )}
 
       {/* ---- EDUCATION ---- */}
       {education.length > 0 && (

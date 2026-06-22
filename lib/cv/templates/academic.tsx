@@ -3,7 +3,6 @@ import type { ResumeData } from "@/lib/cv/types";
 export function AcademicTemplate({ data }: { data: ResumeData }) {
   const {
     personal: p,
-    summary,
     experience,
     education,
     skills,
@@ -42,12 +41,6 @@ export function AcademicTemplate({ data }: { data: ResumeData }) {
           <div style={{ fontSize: "9.5pt", color: "#333" }}>{contactLine}</div>
         )}
       </div>
-
-      {summary && (
-        <Section title="Research Interests">
-          <p style={{ margin: 0, fontSize: "10pt", lineHeight: 1.6, textAlign: "justify" }}>{summary}</p>
-        </Section>
-      )}
 
       {education.length > 0 && (
         <Section title="Education">

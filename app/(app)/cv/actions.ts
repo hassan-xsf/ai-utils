@@ -193,7 +193,9 @@ export async function generateCvFromContext(
 }
 
 // Removes common LLM placeholder strings from the resume — defense-in-depth
-// against the model fabricating contact details when the user didn't provide them.
+// against the model fabricating contact details when the user didn't provide
+// them. Also unconditionally strips any "summary" field — by product decision
+// the CV never includes a summary/objective paragraph.
 function stripPlaceholders(data: ResumeData): ResumeData {
   const placeholderPatterns = [
     /^your\s+(name|phone|email|address|location|website|linkedin|github|profile)/i,
@@ -220,6 +222,7 @@ function stripPlaceholders(data: ResumeData): ResumeData {
 
   return {
     ...data,
+    summary: "",
     personal: {
       ...data.personal,
       name: clean(data.personal?.name),

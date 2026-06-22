@@ -1,7 +1,7 @@
 import type { ResumeData } from "@/lib/cv/types";
 
 export function AltaCvTemplate({ data }: { data: ResumeData }) {
-  const { personal: p, summary, experience, education, skills, projects, certifications, awards } = data;
+  const { personal: p, experience, education, skills, projects, certifications, awards } = data;
 
   return (
     <div style={{ fontFamily: "'Arial', sans-serif", fontSize: "9.5pt", color: "#000", background: "#fff", padding: "0", boxSizing: "border-box", width: "100%" }}>
@@ -64,12 +64,6 @@ export function AltaCvTemplate({ data }: { data: ResumeData }) {
 
         {/* Right main: 70% */}
         <div style={{ flex: 1, padding: "14px 16px" }}>
-          {summary && (
-            <MainSection title="Profile">
-              <p style={{ margin: 0, fontSize: "9.5pt", lineHeight: 1.5 }}>{summary}</p>
-            </MainSection>
-          )}
-
           {experience.length > 0 && (
             <MainSection title="Experience">
               {experience.map((e, i) => (

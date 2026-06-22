@@ -108,11 +108,6 @@ export function ResumeForm({ data: rawData, onChange }: ResumeFormProps) {
         </div>
       </Accordion>
 
-      {/* Summary */}
-      <Accordion title="Summary" open={open === "summary"} onToggle={() => toggle("summary")}>
-        <textarea className="textarea" rows={3} value={data.summary ?? ""} onChange={(e) => set({ summary: e.target.value })} placeholder="A brief professional summary…" />
-      </Accordion>
-
       {/* Experience */}
       <Accordion title={`Experience (${data.experience.length})`} open={open === "experience"} onToggle={() => toggle("experience")}>
         <div className="space-y-3">

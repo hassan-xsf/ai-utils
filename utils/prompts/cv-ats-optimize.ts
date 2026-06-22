@@ -15,6 +15,7 @@ Rules:
 - Only add skills or experiences present in the user context; never fabricate
 - Reorder bullet points to surface the most relevant experience first
 - Keep the JSON structure identical — do not add or remove top-level keys
+- DROP any "summary" field — set it to an empty string. The CV must never contain a summary/objective/profile paragraph.
 - Return valid JSON only
 
 Job Description:

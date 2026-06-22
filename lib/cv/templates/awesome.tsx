@@ -1,7 +1,7 @@
 import type { ResumeData } from "@/lib/cv/types";
 
 export function AwesomeTemplate({ data }: { data: ResumeData }) {
-  const { personal: p, summary, experience, education, skills, projects, certifications } = data;
+  const { personal: p, experience, education, skills, projects, certifications } = data;
 
   const contact = [p.phone, p.email, p.website, p.linkedin, p.github].filter(Boolean).join(" · ");
 
@@ -15,12 +15,6 @@ export function AwesomeTemplate({ data }: { data: ResumeData }) {
       </div>
 
       <hr style={{ border: "none", borderTop: "1.5px solid #444", margin: "0 0 10px" }} />
-
-      {summary && (
-        <Section title="Summary">
-          <p style={{ margin: 0, fontSize: "9.5pt", lineHeight: 1.5 }}>{summary}</p>
-        </Section>
-      )}
 
       {experience.length > 0 && (
         <Section title="Experience">

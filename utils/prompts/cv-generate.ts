@@ -2,7 +2,6 @@ import type { CvContext } from "@/lib/cv/types";
 
 const SCHEMA = `{
   personal: { name, email, phone, location, title?, website?, linkedin?, github? },
-  summary?: string,
   experience: Array<{ company, title, location?, startDate, endDate, bullets: string[] }>,
   education: Array<{ institution, degree, location?, startDate, endDate, gpa?, notes? }>,
   skills: Array<{ category: string, items: string }>,
@@ -10,7 +9,9 @@ const SCHEMA = `{
   certifications?: Array<{ name, issuer?, date? }>,
   publications?: Array<{ authors, title, venue, year }>,
   awards?: Array<{ name, date? }>
-}`;
+}
+
+DO NOT include a "summary" field. The CV must never have a summary/objective/profile section.`;
 
 export function buildCvGeneratePrompt(context: CvContext, templateName: string): string {
   return `You are a professional CV writer. Build a focused, polished CV from the user information below.
