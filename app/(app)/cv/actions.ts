@@ -121,6 +121,16 @@ const ContextSchema = z.object({
   education: z.string(),
   projects: z.string(),
   certifications: z.string(),
+  personal: z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    location: z.string().optional(),
+    title: z.string().optional(),
+    website: z.string().optional(),
+    linkedin: z.string().optional(),
+    github: z.string().optional(),
+  }).optional(),
 });
 
 export async function saveContext(
@@ -130,6 +140,12 @@ export async function saveContext(
   const user = await requireUser();
   const supabase = await createClient();
 
+  const personalRaw = formData.get("personal")?.toString();
+  let personal: Record<string, string> | undefined;
+  if (personalRaw) {
+    try { personal = JSON.parse(personalRaw); } catch { /* ignore */ }
+  }
+
   const parsed = ContextSchema.safeParse({
     bio: formData.get("bio")?.toString() ?? "",
     skills: formData.get("skills")?.toString() ?? "",
@@ -137,6 +153,7 @@ export async function saveContext(
     education: formData.get("education")?.toString() ?? "",
     projects: formData.get("projects")?.toString() ?? "",
     certifications: formData.get("certifications")?.toString() ?? "",
+    personal,
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -186,6 +203,28 @@ export async function generateCvFromContext(
   try {
     const raw = await askAi(prompt);
     const resumeData = stripPlaceholders(parseAiJson(raw));
+
+    // Merge trusted personal contact info from the user's saved profile.
+    // The AI cannot reliably extract name/email/phone/links from prose, so we
+    // overwrite any (possibly empty or wrong) AI output with what the user
+    // explicitly saved in their profile.
+    if (context.personal) {
+      const p = context.personal;
+      const merge = (aiVal: string, saved: string | undefined) =>
+        saved?.trim() ? saved.trim() : aiVal;
+      resumeData.personal = {
+        ...resumeData.personal,
+        name: merge(resumeData.personal.name, p.name),
+        email: merge(resumeData.personal.email, p.email),
+        phone: merge(resumeData.personal.phone, p.phone),
+        location: merge(resumeData.personal.location, p.location),
+        title: merge(resumeData.personal.title ?? "", p.title),
+        website: merge(resumeData.personal.website ?? "", p.website),
+        linkedin: merge(resumeData.personal.linkedin ?? "", p.linkedin),
+        github: merge(resumeData.personal.github ?? "", p.github),
+      };
+    }
+
     return { ok: true, data: { resumeData } };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "AI request failed" };

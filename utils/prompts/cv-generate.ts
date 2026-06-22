@@ -45,7 +45,16 @@ WRITING STYLE:
 - Dates: "Mon YYYY" or "YYYY" format; use "Present" for current roles
 
 User context:
-Bio: ${context.bio || "(not provided)"}
+${context.personal ? `Personal Info (use these values exactly in the personal fields):
+Name: ${context.personal.name || "(not provided)"}
+Email: ${context.personal.email || "(not provided)"}
+Phone: ${context.personal.phone || "(not provided)"}
+Location: ${context.personal.location || "(not provided)"}
+Title: ${context.personal.title || "(not provided)"}
+Website: ${context.personal.website || "(not provided)"}
+LinkedIn: ${context.personal.linkedin || "(not provided)"}
+GitHub: ${context.personal.github || "(not provided)"}
+` : ""}Bio: ${context.bio || "(not provided)"}
 Skills: ${context.skills || "(not provided)"}
 Experience: ${context.experience || "(not provided)"}
 Education: ${context.education || "(not provided)"}

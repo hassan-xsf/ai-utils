@@ -98,6 +98,17 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
     certifications: context?.certifications ?? "",
   });
 
+  const [personalFields, setPersonalFields] = useState({
+    name: context?.personal?.name ?? "",
+    email: context?.personal?.email ?? "",
+    phone: context?.personal?.phone ?? "",
+    location: context?.personal?.location ?? "",
+    title: context?.personal?.title ?? "",
+    website: context?.personal?.website ?? "",
+    linkedin: context?.personal?.linkedin ?? "",
+    github: context?.personal?.github ?? "",
+  });
+
   useEffect(() => {
     if (ctxFillState.ok && ctxFillState.data) {
       const c = (ctxFillState.data as { context: Partial<typeof ctxFields> }).context;
@@ -415,7 +426,33 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
                 <p className="text-xs mb-3" style={{ color: "var(--danger)" }}>{ctxFillState.error}</p>
               )}
 
-              <form className="space-y-4" action={ctxFn}>
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+                  fd.set("personal", JSON.stringify(personalFields));
+                  startTransition(() => ctxFn(fd));
+                }}
+              >
+                <div className="space-y-2">
+                  <p className="label">Personal Info</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["name", "email", "phone", "location", "title", "website", "linkedin", "github"] as const).map((field) => (
+                      <div key={field} className="space-y-0.5">
+                        <label className="label capitalize">{field}</label>
+                        <input
+                          type="text"
+                          className="input"
+                          value={personalFields[field]}
+                          onChange={(e) => setPersonalFields((prev) => ({ ...prev, [field]: e.target.value }))}
+                          placeholder={field === "linkedin" ? "linkedin.com/in/…" : field === "github" ? "github.com/…" : `Your ${field}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {(["bio", "skills", "experience", "education", "projects", "certifications"] as const).map((field) => (
                   <div key={field} className="space-y-1">
                     <label className="label capitalize">{field}</label>

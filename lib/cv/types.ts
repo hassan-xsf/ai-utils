@@ -81,6 +81,17 @@ export type CvDocument = {
   updated_at: string;
 };
 
+export type CvContextPersonal = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  title?: string;
+  website?: string;
+  linkedin?: string;
+  github?: string;
+};
+
 export type CvContext = {
   user_id?: string;
   bio: string;
@@ -89,6 +100,7 @@ export type CvContext = {
   education: string;
   projects: string;
   certifications: string;
+  personal?: CvContextPersonal;
   updated_at?: string;
 };
 
