@@ -111,7 +111,7 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
 
   useEffect(() => {
     if (ctxFillState.ok && ctxFillState.data) {
-      const c = (ctxFillState.data as { context: Partial<typeof ctxFields> }).context;
+      const c = (ctxFillState.data as { context: Partial<typeof ctxFields> & { personal?: Record<string, string> } }).context;
       setCtxFields((prev) => ({
         bio: typeof c.bio === "string" ? c.bio : prev.bio,
         skills: typeof c.skills === "string" ? c.skills : prev.skills,
@@ -120,6 +120,19 @@ export function CvEditor({ document: doc, context, templates, initialMode }: CvE
         projects: typeof c.projects === "string" ? c.projects : prev.projects,
         certifications: typeof c.certifications === "string" ? c.certifications : prev.certifications,
       }));
+      if (c.personal && typeof c.personal === "object") {
+        const p = c.personal;
+        setPersonalFields((prev) => ({
+          name: typeof p.name === "string" && p.name ? p.name : prev.name,
+          email: typeof p.email === "string" && p.email ? p.email : prev.email,
+          phone: typeof p.phone === "string" && p.phone ? p.phone : prev.phone,
+          location: typeof p.location === "string" && p.location ? p.location : prev.location,
+          title: typeof p.title === "string" && p.title ? p.title : prev.title,
+          website: typeof p.website === "string" && p.website ? p.website : prev.website,
+          linkedin: typeof p.linkedin === "string" && p.linkedin ? p.linkedin : prev.linkedin,
+          github: typeof p.github === "string" && p.github ? p.github : prev.github,
+        }));
+      }
     }
   }, [ctxFillState]);
 
